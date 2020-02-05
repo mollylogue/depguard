@@ -16,17 +16,19 @@ import (
 type ListType int
 
 const (
-	// LTBlacklist states the list given is a blacklist. (default)
-	LTBlacklist ListType = iota
-	// LTWhitelist states the list given is a whitelist.
-	LTWhitelist
+	// LTDenylist states the list given is a denylist. (default)
+	LTDenylist ListType = iota
+	// LTAllowlist states the list given is an allowlist.
+	LTAllowlist
 )
 
 // StringToListType makes it easier to turn a string into a ListType.
 // It assumes that the string representation is lower case.
 var StringToListType = map[string]ListType{
-	"whitelist": LTWhitelist,
-	"blacklist": LTBlacklist,
+	"allowlist": LTAllowlist,
+	"denylist":  LTDenylist,
+	"whitelist": LTAllowlist,
+	"blacklist": LTDenylist,
 }
 
 // Issue with the package with PackageName at the Position.
@@ -54,8 +56,8 @@ type Depguard struct {
 // Run checks for dependencies given the program and validates them against
 // Packages.
 func (dg *Depguard) Run(config *loader.Config, prog *loader.Program) ([]*Issue, error) {
-	// Shortcut execution on an empty blacklist as that means every package is allowed
-	if dg.ListType == LTBlacklist && len(dg.Packages) == 0 {
+	// Shortcut execution on an empty denylist as that means every package is allowed
+	if dg.ListType == LTDenylist && len(dg.Packages) == 0 {
 		return nil, nil
 	}
 
@@ -188,11 +190,11 @@ func pkgInGlobList(pkg string, globList []glob.Glob) bool {
 	return false
 }
 
-// InList | WhiteList | BlackList
-//   y   |           |     x
-//   n   |     x     |
+// InList | AllowList | DenyList
+//   y   |            |     x
+//   n   |     x      |
 func (dg *Depguard) flagIt(pkg string, prefixList []string, globList []glob.Glob) bool {
-	return pkgInList(pkg, prefixList, globList) == (dg.ListType == LTBlacklist)
+	return pkgInList(pkg, prefixList, globList) == (dg.ListType == LTDenylist)
 }
 
 func cleanBasicLitString(value string) string {

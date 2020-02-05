@@ -1,7 +1,7 @@
 # Depguard
 
 Go linter that checks package imports are in a list of acceptable packages. It
-supports a white list and black list option and can do prefix or glob matching.
+supports an allow list and a deny list option and can do prefix or glob matching.
 This allows you to allow imports from a whole organization or only
 allow specific packages within a repository. It is recommended to use prefix
 matching as it is faster than glob matching. The fewer glob matches the better.
@@ -24,7 +24,7 @@ The following is an example configuration file.
 
 ```json
 {
-  "type": "whitelist",
+  "type": "allowlist",
   "packages": ["github.com/OpenPeeDeeP/depguard"],
   "packageErrorMessages": {
     "github.com/OpenPeeDeeP/depguards": "Please use \"github.com/OpenPeeDeeP/depguard\","
@@ -34,11 +34,11 @@ The following is an example configuration file.
 }
 ```
 
-- `type` can be either `whitelist` or `blacklist`. This check is case insensitive.
-  If not specified the default is `blacklist`.
+- `type` can be either `allowlist` or `denylist` (still supports `whitelist` and `blacklist` for backward compatibility). This check is case insensitive.
+  If not specified the default is `denylist`.
 - `packages` is a list of packages for the list type specified.
 - `packageErrorMessages` is a mapping from packages to the error message to display
-- `inTests` is a list of packages allowed/disallowed only in test files.
+- `inTests` is a list of packages allowed/denyed only in test files.
 - Set `includeGoStdLib` (`includeGoRoot` for backwards compatability) to true if you want to check the list against standard lib.
   If not specified the default is false.
 

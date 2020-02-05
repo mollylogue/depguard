@@ -20,8 +20,8 @@ import (
 )
 
 const (
-	whitelistMsg = " was not in the whitelist"
-	blacklistMsg = " was in the blacklist"
+	allowlistMsg = " was not in the allow list"
+	denylistMsg  = " was in the deny list"
 )
 
 var (
@@ -72,12 +72,12 @@ func parseConfigFile() (*config, error) {
 		if c.Type != "" {
 			return nil, fmt.Errorf("Unsure what list type %s is", c.Type)
 		}
-		c.listType = depguard.LTBlacklist
+		c.listType = depguard.LTDenylist
 	}
 
-	if c.listType == depguard.LTBlacklist && c.PackagesWithErrorMessages != nil {
+	if c.listType == depguard.LTDenylist && c.PackagesWithErrorMessages != nil {
 		// add any packages that are only in PackgesWithErrorMessages
-		// to the packages list to be blacklisted
+		// to the packages list to be deny-listed
 		for _, pkg := range c.Packages {
 			if _, ok := c.PackagesWithErrorMessages[pkg]; !ok {
 				c.PackagesWithErrorMessages[pkg] = ""
@@ -173,10 +173,10 @@ func printIssues(c *config, issues []*depguard.Issue) {
 	var str strings.Builder
 	for _, issue := range issues {
 		temp.Execute(buf, issue)
-		if c.listType == depguard.LTWhitelist {
-			str.WriteString(buf.String() + whitelistMsg)
+		if c.listType == depguard.LTAllowlist {
+			str.WriteString(buf.String() + allowlistMsg)
 		} else {
-			str.WriteString(buf.String() + blacklistMsg)
+			str.WriteString(buf.String() + denylistMsg)
 		}
 
 		// check to see if an additional error message was supplied for the package
